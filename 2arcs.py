@@ -27,7 +27,7 @@ def lines_2arc_connection(l0, l1):
     d1r = d1 + connection
 
     # Find the intersection of the new lines
-    arcs_meeting_point = lines_intersection(l0[1], d0r, l1[0], -d1r)
+    arcs_meeting_point = lines_intersection(l0[1], d0r, l1[0], d1r)
     if arcs_meeting_point is None:
         # Parallel lines
         arcs_meeting_point = (l0[1] + l1[0]) * 0.5
