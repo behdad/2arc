@@ -40,12 +40,17 @@ d1r = d1 * complex(math.cos(a1), math.sin(a1))
 
 # Find the intersection of the new lines
 arcs_meeting_point = lines_intersection((l0[1], l0[1] + d0r), (l1[0], l1[0] + d1r))
-print(arcs_meeting_point)
+print("Arcs meeting point:", arcs_meeting_point)
 
 # Find the centers of the arcs
 c0 = lines_intersection((l0[1], l0[1] + d0 * complex(0, 1)), (arcs_meeting_point, arcs_meeting_point + connection * complex(0, 1)))
 c1 = lines_intersection((l1[0], l1[0] + d1 * complex(0, 1)), (arcs_meeting_point, arcs_meeting_point + connection * complex(0, 1)))
-print(c0, c1)
+print("Arc centers: ", c0, c1)
+
+single_arc = False
+if abs(c0 - c1) < 1e-6:
+    print("Single arc")
+    single_arc = True
 
 # Find the radius of the arcs
 r0 = abs(c0 - arcs_meeting_point)
@@ -59,7 +64,8 @@ from matplotlib.patches import Arc
 plt.plot(*zip(p0, p1), color='black')
 plt.plot(*zip(p2, p3), color='black')
 # Draw arcs meeting point
-plt.plot([arcs_meeting_point.real], [arcs_meeting_point.imag], marker='o', color='red')
+if not single_arc:
+    plt.plot([arcs_meeting_point.real], [arcs_meeting_point.imag], marker='o', color='red')
 # Draw arc centers
 plt.plot([c0.real], [c0.imag], marker='o', color='green')
 plt.plot([c1.real], [c1.imag], marker='o', color='green')
