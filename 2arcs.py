@@ -13,8 +13,8 @@ def lines_intersection(l0, l1):
     c = cross(s1, s2)
     if abs(c) < 1e-6:
         return None
-    t = cross(s2, p0 - p2) / c
-    return p0 + (t * s1)
+    t = cross(s2, p1 - p2) / c
+    return p1 + (t * s1)
 
 
 def lines_2arc_connection(l0, l1):
