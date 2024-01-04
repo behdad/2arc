@@ -77,27 +77,27 @@ def lines_2arc_connection(l0, l1):
         # Single-arc solution
         c0 = c1 = l0[1] + d0r
 
-    return c0, c1, arcs_meeting_point, sign
+    # Find the radius of the arcs
+    r0 = abs(c0 - arcs_meeting_point)
+    r1 = abs(c1 - arcs_meeting_point)
+    assert abs(r0 - abs(c0 - l0[1])) < 1e-6, "r0: %f, abs(c0 - l0[1]): %f" % (
+        r0,
+        abs(c0 - l0[1]),
+    )
+    assert abs(r1 - abs(c1 - l1[0])) < 1e-6, "r1: %f, abs(c1 - l1[0]): %f" % (
+        r1,
+        abs(c1 - l1[0]),
+    )
+
+    return c0, r0, c1, r1, arcs_meeting_point, sign
 
 
-c0, c1, arcs_meeting_point, sign = lines_2arc_connection(l0, l1)
+c0, r0, c1, r1, arcs_meeting_point, sign = lines_2arc_connection(l0, l1)
 
 single_arc = False
 if abs(c0 - c1) < 1e-6:
     print("Single arc")
     single_arc = True
-
-# Find the radius of the arcs
-r0 = abs(c0 - arcs_meeting_point)
-r1 = abs(c1 - arcs_meeting_point)
-assert abs(r0 - abs(c0 - l0[1])) < 1e-6, "r0: %f, abs(c0 - l0[1]): %f" % (
-    r0,
-    abs(c0 - l0[1]),
-)
-assert abs(r1 - abs(c1 - l1[0])) < 1e-6, "r1: %f, abs(c1 - l1[0]): %f" % (
-    r1,
-    abs(c1 - l1[0]),
-)
 
 # Plot them
 import matplotlib.pyplot as plt
