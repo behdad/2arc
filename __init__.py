@@ -143,6 +143,7 @@ def plot_lines_2arc_connection(plt, l0, l1, solution):
         theta1=theta01,
         theta2=theta02,
         linewidth=4,
+        color="blue",
     )
     arc1 = Arc(
         (c1.real, c1.imag),
@@ -152,6 +153,7 @@ def plot_lines_2arc_connection(plt, l0, l1, solution):
         theta1=theta11,
         theta2=theta12,
         linewidth=4,
+        color="blue",
     )
     plt.add_patch(arc0)
     plt.add_patch(arc1)
