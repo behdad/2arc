@@ -22,7 +22,7 @@ def lines_2arc_connection(l0, l1):
     d0 = normalize(l0[1] - l0[0])
     d1 = normalize(l1[1] - l1[0])
 
-    # Rotate d0, d1 by a0, a1
+    # Mid-angle
     d0r = d0 + connection
     d1r = d1 + connection
 
