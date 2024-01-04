@@ -1,10 +1,6 @@
 import math
 
 
-def dot(a, b):
-    return a.real * b.real + a.imag * b.imag
-
-
 def cross(a, b):
     return a.real * b.imag - a.imag * b.real
 
