@@ -104,8 +104,7 @@ def lines_2arc_connection(l0, l1):
     return (c0, r0, theta01, theta02), (c1, r1, theta11, theta12), arcs_meeting_point
 
 
-def plot_lines_2arc_connection(l0, l1, solution):
-    import matplotlib.pyplot as plt
+def plot_lines_2arc_connection(plt, l0, l1, solution):
     from matplotlib.patches import Arc
 
     (
@@ -139,25 +138,40 @@ def plot_lines_2arc_connection(l0, l1, solution):
     arc1 = Arc(
         (c1.real, c1.imag), r1 * 2, r1 * 2, angle=0, theta1=theta11, theta2=theta12
     )
-    plt.gca().add_patch(arc0)
-    plt.gca().add_patch(arc1)
+    plt.add_patch(arc0)
+    plt.add_patch(arc1)
 
 
 if __name__ == "__main__":
-    p0 = 0, 0
-    p1 = 0, 1
-    p2 = 1, 1.2
-    p3 = 1.4, 0
+    tests = [
+        ((0, 0), (0, 1), (1, 1), (1, 0)),
+        ((0, 0), (0, 1), (1, 1.2), (1, 0)),
+        ((0, 0), (0, 1), (1, 1.2), (1.4, 0)),
+        ((0, 0), (0, 1), (1, 1.2), (0.8, 0)),
+        ((0, 0), (0, 1), (1, 1.5), (2, 1.5)),
+        ((0, 0), (0, 1), (1, 2), (2, 2)),
+        ((0, 0), (0, -1), (1, -1), (1, 0)),
+        ((0, 0), (0, -1), (1, -1.2), (1, 0)),
+        ((0, 0), (0, -1), (1, -1.2), (1.4, 0)),
+        ((0, 0), (0, -1), (1, -1.2), (0.8, 0)),
+        ((0, 0), (0, -1), (1, -1.5), (2, -1.5)),
+        ((0, 0), (0, -1), (1, -2), (2, -2)),
+    ]
 
     # Plot them
     import matplotlib.pyplot as plt
 
-    l0 = (complex(*p0), complex(*p1))
-    l1 = (complex(*p2), complex(*p3))
-    solution = lines_2arc_connection(l0, l1)
-    plot_lines_2arc_connection(l0, l1, solution)
+    w = math.ceil(math.sqrt(len(tests)))
+    h = math.ceil(len(tests) / w)
+    fig, axs = plt.subplots(h, w)
 
-    # Aspect ratio 1
-    plt.gca().set_aspect("equal", adjustable="box")
+    for i, test in enumerate(tests):
+        axis = axs[i // w, i % w]
+        p0, p1, p2, p3 = test
+        l0 = (complex(*p0), complex(*p1))
+        l1 = (complex(*p2), complex(*p3))
+        solution = lines_2arc_connection(l0, l1)
+        plot_lines_2arc_connection(axis, l0, l1, solution)
+        axis.set_aspect("equal", adjustable="box")
 
     plt.show()
