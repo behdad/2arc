@@ -81,6 +81,5 @@ plt.gca().add_patch(arc1)
 # Aspect ratio 1
 plt.gca().set_aspect('equal', adjustable='box')
 
-#plt.plot(*zip(arcs_meeting_point, arcs_meeting_point + connection), color='blue')
 plt.show()
 
