@@ -44,6 +44,7 @@ def lines_2arc_connection(l0, l1):
     # Find the radius of the arcs
     r0 = abs(c0 - arcs_meeting_point)
     r1 = abs(c1 - arcs_meeting_point)
+    # Double-check the solution
     assert abs(r0 - abs(c0 - l0[1])) < 1e-6, (r0, abs(c0 - l0[1]))
     assert abs(r1 - abs(c1 - l1[0])) < 1e-6, (r1, abs(c1 - l1[0]))
 
