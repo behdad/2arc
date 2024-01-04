@@ -27,13 +27,10 @@ def lines_intersection(l0, l1):
     p2, p3 = l1
     s1 = p1 - p0
     s2 = p3 - p2
-    try:
-        if abs(cross(s1, s2)) < 1e-6:
-            return None
-        s = (-s1.imag * (p0.real - p2.real) + s1.real * (p0.imag - p2.imag)) / (-s2.real * s1.imag + s1.real * s2.imag)
-        t = ( s2.real * (p0.imag - p2.imag) - s2.imag * (p0.real - p2.real)) / (-s2.real * s1.imag + s1.real * s2.imag)
-    except ZeroDivisionError:
+    c = cross(s1, s2)
+    if abs(c) < 1e-6:
         return None
+    t = cross(s2, p0 - p2) / c
     return p0 + (t * s1)
 
 # Find the angle between the tangent lines and connection
