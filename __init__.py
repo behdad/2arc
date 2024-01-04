@@ -32,7 +32,7 @@ def lines_2arc_connection(l0, l1):
         p0 = l0[1]
         p1 = l1[0]
 
-        t = 0.5
+        t = 1
 
         # Solve for arcs_meeting_point
         # c0 = (arcs_meeting_point - l0[1]) ** 2 / d0
@@ -43,8 +43,11 @@ def lines_2arc_connection(l0, l1):
         b = -2 * (d1 * p0 - t * d0 * p1)
         c = d1 * p0 * p0 - t * d0 * p1 * p1
 
-        delta = b * b - 4 * a * c
-        x1 = (-b - delta**0.5) / (2 * a)
+        if a:
+            delta = b * b - 4 * a * c
+            x1 = (-b - delta**0.5) / (2 * a)
+        else:
+            x1 = -c / b
 
         arcs_meeting_point = x1
 
