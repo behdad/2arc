@@ -2,8 +2,8 @@ import math
 
 p0 = 0, 0
 p1 = 0, 1
-p2 = 1, 1
-p3 = 1, 0
+p2 = 1, 1.2
+p3 = 1.4, 0
 
 l0 = (complex(*p0), complex(*p1))
 l1 = (complex(*p2), complex(*p3))
@@ -28,6 +28,8 @@ def lines_intersection(l0, l1):
     s1 = p1 - p0
     s2 = p3 - p2
     try:
+        if abs(cross(s1, s2)) < 1e-6:
+            return None
         s = (-s1.imag * (p0.real - p2.real) + s1.real * (p0.imag - p2.imag)) / (-s2.real * s1.imag + s1.real * s2.imag)
         t = ( s2.real * (p0.imag - p2.imag) - s2.imag * (p0.real - p2.real)) / (-s2.real * s1.imag + s1.real * s2.imag)
     except ZeroDivisionError:
@@ -53,7 +55,7 @@ arcs_meeting_point = lines_intersection((l0[1], l0[1] + d0r), (l1[0], l1[0] + d1
 if arcs_meeting_point is None:
     # Parallel lines
     print("Parallel lines")
-    arcs_meeting_point = (l0[1] + l1[0]) * 0.5 + connection * complex(0, 1) * .5
+    arcs_meeting_point = (l0[1] + l1[0]) * 0.5
 print("Arcs meeting point:", arcs_meeting_point)
 
 # Find the centers of the arcs
