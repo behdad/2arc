@@ -8,10 +8,6 @@ p3 = 1.4, 0
 l0 = (complex(*p0), complex(*p1))
 l1 = (complex(*p2), complex(*p3))
 
-connection = l1[0] - l0[1]
-d0 = l0[1] - l0[0]
-d1 = l1[1] - l1[0]
-
 def dot(a, b):
     return a.real * b.real + a.imag * b.imag
 
@@ -33,35 +29,45 @@ def lines_intersection(l0, l1):
     t = cross(s2, p0 - p2) / c
     return p0 + (t * s1)
 
-# Find the angle between the tangent lines and connection
-sign = 1 if cross(d0, connection) >= 0 else -1
-print("Sign:", sign)
-a0 = -angle(d0, connection)
-a1 = angle(d1, connection)
-print("Angles:", math.degrees(a0), math.degrees(a1))
-# Find new lines
-a0 *= 0.5
-a1 *= 0.5
+def lines_2arc_connection(l0, l1):
 
-# Rotate d0, d1 by a0, a1
-d0r = d0 * complex(-math.cos(a0), math.sin(a0))
-d1r = d1 * complex(math.cos(a1), math.sin(a1))
+    connection = l1[0] - l0[1]
+    d0 = l0[1] - l0[0]
+    d1 = l1[1] - l1[0]
 
-# Find the intersection of the new lines
-arcs_meeting_point = lines_intersection((l0[1], l0[1] + d0r), (l1[0], l1[0] + d1r))
-if arcs_meeting_point is None:
-    # Parallel lines
-    print("Parallel lines")
-    arcs_meeting_point = (l0[1] + l1[0]) * 0.5
-print("Arcs meeting point:", arcs_meeting_point)
+    # Find the angle between the tangent lines and connection
+    sign = 1 if cross(d0, connection) >= 0 else -1
+    print("Sign:", sign)
+    a0 = -angle(d0, connection)
+    a1 = angle(d1, connection)
+    print("Angles:", math.degrees(a0), math.degrees(a1))
+    # Find new lines
+    a0 *= 0.5
+    a1 *= 0.5
 
-# Find the centers of the arcs
-c0 = lines_intersection((l0[1], l0[1] + d0 * complex(0, 1)), (arcs_meeting_point, arcs_meeting_point + connection * complex(0, 1)))
-c1 = lines_intersection((l1[0], l1[0] + d1 * complex(0, 1)), (arcs_meeting_point, arcs_meeting_point + connection * complex(0, 1)))
-print("Arc centers: ", c0, c1)
-if c0 is None or c1 is None:
-    # Single-arc solution
-    c0 = c1 = l0[1] + d0r
+    # Rotate d0, d1 by a0, a1
+    d0r = d0 * complex(-math.cos(a0), math.sin(a0))
+    d1r = d1 * complex(math.cos(a1), math.sin(a1))
+
+    # Find the intersection of the new lines
+    arcs_meeting_point = lines_intersection((l0[1], l0[1] + d0r), (l1[0], l1[0] + d1r))
+    if arcs_meeting_point is None:
+        # Parallel lines
+        print("Parallel lines")
+        arcs_meeting_point = (l0[1] + l1[0]) * 0.5
+    print("Arcs meeting point:", arcs_meeting_point)
+
+    # Find the centers of the arcs
+    c0 = lines_intersection((l0[1], l0[1] + d0 * complex(0, 1)), (arcs_meeting_point, arcs_meeting_point + connection * complex(0, 1)))
+    c1 = lines_intersection((l1[0], l1[0] + d1 * complex(0, 1)), (arcs_meeting_point, arcs_meeting_point + connection * complex(0, 1)))
+    print("Arc centers: ", c0, c1)
+    if c0 is None or c1 is None:
+        # Single-arc solution
+        c0 = c1 = l0[1] + d0r
+
+    return c0, c1, arcs_meeting_point, sign
+
+c0, c1, arcs_meeting_point, sign = lines_2arc_connection(l0, l1)
 
 single_arc = False
 if abs(c0 - c1) < 1e-6:
