@@ -135,8 +135,8 @@ def plot_lines_2arc_connection(plt, l0, l1, solution):
             color="red",
         )
     # Draw arc centers
-    plt.plot([c0.real], [c0.imag], marker="o", color="green")
-    plt.plot([c1.real], [c1.imag], marker="o", color="green")
+    # plt.plot([c0.real], [c0.imag], marker="o", color="green")
+    # plt.plot([c1.real], [c1.imag], marker="o", color="green")
     # Draw the arcs
     arc0 = Arc(
         (c0.real, c0.imag),
