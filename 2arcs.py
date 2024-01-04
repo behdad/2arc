@@ -9,14 +9,7 @@ def cross(a, b):
     return a.real * b.imag - a.imag * b.real
 
 
-def angle(v0, v1):
-    return math.acos(dot(v0, v1) / (abs(v0) * abs(v1))) * (
-        1 if cross(v0, v1) >= 0 else -1
-    )
-
-
 def lines_intersection(l0, l1):
-    print("Lines intersection:", l0, l1)
     p0, p1 = l0
     p2, p3 = l1
     s1 = p1 - p0
@@ -29,31 +22,19 @@ def lines_intersection(l0, l1):
 
 
 def lines_2arc_connection(l0, l1):
-    connection = l1[0] - l0[1]
-    d0 = l0[1] - l0[0]
-    d1 = l1[1] - l1[0]
-
-    # Find the angle between the tangent lines and connection
-    sign = 1 if cross(d0, connection) >= 0 else -1
-    print("Sign:", sign)
-    a0 = -angle(d0, connection)
-    a1 = angle(d1, connection)
-    print("Angles:", math.degrees(a0), math.degrees(a1))
-    # Find new lines
-    a0 *= 0.5
-    a1 *= 0.5
+    connection = (l1[0] - l0[1]) / abs(l1[0] - l0[1])
+    d0 = (l0[1] - l0[0]) / abs(l0[1] - l0[0])
+    d1 = (l1[1] - l1[0]) / abs(l1[1] - l1[0])
 
     # Rotate d0, d1 by a0, a1
-    d0r = d0 * complex(-math.cos(a0), math.sin(a0))
-    d1r = d1 * complex(math.cos(a1), math.sin(a1))
+    d0r = d0 + connection
+    d1r = d1 + connection
 
     # Find the intersection of the new lines
-    arcs_meeting_point = lines_intersection((l0[1], l0[1] + d0r), (l1[0], l1[0] + d1r))
+    arcs_meeting_point = lines_intersection((l0[1], l0[1] + d0r), (l1[0], l1[0] - d1r))
     if arcs_meeting_point is None:
         # Parallel lines
-        print("Parallel lines")
         arcs_meeting_point = (l0[1] + l1[0]) * 0.5
-    print("Arcs meeting point:", arcs_meeting_point)
 
     # Find the centers of the arcs
     c0 = lines_intersection(
@@ -64,7 +45,6 @@ def lines_2arc_connection(l0, l1):
         (l1[0], l1[0] + d1 * complex(0, 1)),
         (arcs_meeting_point, arcs_meeting_point + connection * complex(0, 1)),
     )
-    print("Arc centers: ", c0, c1)
     if c0 is None or c1 is None:
         # Single-arc solution
         c0 = c1 = l0[1] + d0r
@@ -80,6 +60,10 @@ def lines_2arc_connection(l0, l1):
         r1,
         abs(c1 - l1[0]),
     )
+
+    # Find start/end of arcs
+
+    sign = 1 if cross(d0, connection) >= 0 else -1
 
     theta01 = math.degrees(
         math.pi * 0.5
@@ -115,7 +99,6 @@ def plot_lines_2arc_connection(plt, l0, l1, solution):
 
     single_arc = False
     if abs(c0 - c1) < 1e-6:
-        print("Single arc")
         single_arc = True
 
     plt.plot([l0[0].real, l0[1].real], [l0[0].imag, l0[1].imag], color="black")
