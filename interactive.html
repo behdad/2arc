@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lines to Arcs Visualization</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paper.js/0.12.11/paper-core.min.js"></script>
+    <style>
+        /* Center the canvas */
+        body {
+            width: 100%;
+            text-align: center;
+        }
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="myCanvas" width="800" height="800"></canvas>
+
+    <script>
+        class Complex {
+            constructor(real, imag) {
+                this.real = real;
+                this.imag = imag;
+            }
+
+            add(other) {
+                return new Complex(this.real + other.real, this.imag + other.imag);
+            }
+
+            subtract(other) {
+                return new Complex(this.real - other.real, this.imag - other.imag);
+            }
+
+            multiply(other) {
+                return new Complex(
+                    this.real * other.real - this.imag * other.imag,
+                    this.real * other.imag + this.imag * other.real
+                );
+            }
+
+            divide(other) {
+                const denom = other.real * other.real + other.imag * other.imag;
+                return new Complex(
+                    (this.real * other.real + this.imag * other.imag) / denom,
+                    (this.imag * other.real - this.real * other.imag) / denom
+                );
+            }
+
+            abs() {
+                return Math.sqrt(this.real * this.real + this.imag * this.imag);
+            }
+
+            negate() {
+                return new Complex(-this.real, -this.imag);
+            }
+
+            scale(s) {
+                return new Complex(this.real * s, this.imag * s);
+            }
+
+            sqrt() {
+                const r = Math.sqrt(this.abs());
+                const theta = Math.atan2(this.imag, this.real) / 2;
+                return new Complex(r * Math.cos(theta), r * Math.sin(theta));
+            }
+        }
+
+        function dot(a, b) {
+            return a.real * b.real + a.imag * b.imag;
+        }
+
+        function cross(a, b) {
+            return a.real * b.imag - a.imag * b.real;
+        }
+
+        function normalize(d) {
+            return d.divide(new Complex(d.abs(), 0));
+        }
+
+        function linesIntersection(p0, d0, p1, d1) {
+            const c = cross(d0, d1);
+            if (Math.abs(c) < 1e-6) {
+                return null;
+            }
+            const t = cross(d1, p0.subtract(p1)) / c;
+            return p0.add(d0.multiply(new Complex(t, 0)));
+        }
+
+        function lines2ArcConnection(l0, l1) {
+            const rotate90 = new Complex(0, 1);
+            let connection = normalize(l1[0].subtract(l0[1]));
+            const d0 = normalize(l0[1].subtract(l0[0]));
+            const d1 = normalize(l1[1].subtract(l1[0]));
+
+            let arcsMeetingPoint;
+
+            if (dot(d0, d1) > 0) {
+                const p0 = l0[1];
+                const p1 = l1[0];
+
+                const t = 1;
+                const a = d1.subtract(d0.multiply(new Complex(t, 0)));
+                const b = new Complex(-2, 0).multiply(d1.multiply(p0).subtract(d0.multiply(p1).multiply(new Complex(t, 0))));
+                const c = d1.multiply(p0).multiply(p0).subtract(d0.multiply(p1).multiply(p1).multiply(new Complex(t, 0)));
+
+                let x1;
+                if (a.abs()) {
+                    const delta = b.multiply(b).subtract(a.multiply(c).scale(4));
+                    x1 = (b.negate().subtract(delta.sqrt()).divide(a.scale(2)));
+                } else {
+                    x1 = c.negate().divide(b);
+                }
+
+                arcsMeetingPoint = x1;
+                const v = normalize(arcsMeetingPoint.subtract(l0[1]));
+                connection = v.multiply(v).divide(d0);
+            } else {
+                const d0r = d0.add(connection);
+                const d1r = d1.add(connection);
+
+                arcsMeetingPoint = linesIntersection(l0[1], d0r, l1[0], d1r);
+            }
+
+            const connectionNormal = connection.multiply(rotate90);
+            const c0 = linesIntersection(l0[1], d0.multiply(rotate90), arcsMeetingPoint, connectionNormal);
+            const c1 = linesIntersection(l1[0], d1.multiply(rotate90), arcsMeetingPoint, connectionNormal);
+
+            const r0 = c0 ? c0.subtract(arcsMeetingPoint).abs() : null;
+            const r1 = c1 ? c1.subtract(arcsMeetingPoint).abs() : null;
+
+            let theta01 = Math.atan2(l0[1].imag - c0.imag, l0[1].real - c0.real);
+            let theta02 = Math.atan2(arcsMeetingPoint.imag - c0.imag, arcsMeetingPoint.real - c0.real);
+            if (cross(d0, connection) < 0)
+                [theta01, theta02] = [theta02, theta01]
+            let theta11 = Math.atan2(l1[0].imag - c1.imag, l1[0].real - c1.real);
+            let theta12 = Math.atan2(arcsMeetingPoint.imag - c1.imag, arcsMeetingPoint.real - c1.real);
+            if (cross(d1, connection) < 0)
+                [theta11, theta12] = [theta12, theta11]
+
+            arc0 = { center: c0, radius: r0, startAngle: theta01, endAngle: theta02 };
+            arc1 = { center: c1, radius: r1, startAngle: theta11, endAngle: theta12 };
+
+            // Before returning, check for NaN in your results
+            if (isNaN(arc0.radius) || isNaN(arc0.startAngle) || isNaN(arc0.endAngle)) {
+                console.error("Invalid arc0 parameters", arc0);
+            }
+            if (isNaN(arc1.radius) || isNaN(arc1.startAngle) || isNaN(arc1.endAngle)) {
+                console.error("Invalid arc1 parameters", arc1);
+            }
+
+            return {
+                arc0: arc0,
+                arc1: arc1,
+                meetingPoint: arcsMeetingPoint
+            };
+        }
+
+        paper.install(window);
+        window.onload = function() {
+            paper.setup('myCanvas');
+
+            // Create test line segments
+            let line1 = new Path.Line(new Point(200, 200), new Point(200, 300));
+            line1.strokeColor = 'black';
+            let line2 = new Path.Line(new Point(300, 300), new Point(300, 200));
+            line2.strokeColor = 'black';
+
+            // Create handles
+            let handles = [line1.firstSegment.point, line1.lastSegment.point, line2.firstSegment.point, line2.lastSegment.point];
+
+            function updateArcs() {
+                // Clear previous arcs
+                project.activeLayer.children.forEach(child => {
+                    if (child !== line1 && child !== line2) {
+                        child.remove();
+                    }
+                });
+
+                let circles = handles.map(handle => {
+                    let circle = new Path.Circle({
+                        center: handle,
+                        radius: 5,
+                        fillColor: 'red'
+                    });
+                    circle.data.handle = handle;
+                    return circle;
+                });
+
+                // Convert to your Complex class
+                let l0 = [new Complex(line1.firstSegment.point.x, line1.firstSegment.point.y), new Complex(line1.lastSegment.point.x, line1.lastSegment.point.y)];
+                let l1 = [new Complex(line2.firstSegment.point.x, line2.firstSegment.point.y), new Complex(line2.lastSegment.point.x, line2.lastSegment.point.y)];
+
+                let solution = lines2ArcConnection(l0, l1);
+
+                if (solution) {
+
+                    function drawArc(center, radius, startAngle, endAngle) {
+                        // Calculate start, through, and end points of the arc
+                        var startPoint = center.add(new Point(radius * Math.cos(startAngle), radius * Math.sin(startAngle)));
+                        var throughPoint = center.add(new Point(radius * Math.cos((startAngle + endAngle) / 2), radius * Math.sin((startAngle + endAngle) / 2)));
+                        var endPoint = center.add(new Point(radius * Math.cos(endAngle), radius * Math.sin(endAngle)));
+
+                        // Create a path and move to the start point
+                        var path = new Path();
+                        path.strokeColor = 'blue';
+                        path.moveTo(startPoint);
+
+                        // Draw the arc
+                        path.arcTo(throughPoint, endPoint);
+                    }
+
+                    drawArc(new Point(solution.arc0.center.real, solution.arc0.center.imag),
+                            solution.arc0.radius, solution.arc0.startAngle, solution.arc0.endAngle);
+                    drawArc(new Point(solution.arc1.center.real, solution.arc1.center.imag),
+                            solution.arc1.radius, solution.arc1.startAngle, solution.arc1.endAngle);
+                }
+            }
+
+            // Update arcs initially
+            updateArcs();
+
+            // Dragging functionality
+            let hitOptions = {
+                segments: false,
+                stroke: false,
+                fill: true,
+                tolerance: 5
+            };
+
+            let selectedHandle = null;
+
+            function onMouseDown(event) {
+                let hitResult = project.hitTest(event.point, hitOptions);
+                if (hitResult && hitResult.item.data.handle) {
+                    selectedHandle = hitResult.item.data.handle;
+                }
+            }
+
+            function onMouseDrag(event) {
+                if (selectedHandle) {
+                    selectedHandle.x = event.point.x;
+                    selectedHandle.y = event.point.y;
+                    updateArcs();
+                }
+            }
+
+            function onMouseUp(event) {
+                selectedHandle = null;
+            }
+
+            view.onMouseDown = onMouseDown;
+            view.onMouseDrag = onMouseDrag;
+            view.onMouseUp = onMouseUp;
+        };
+    </script>
+</body>
+</html>
+
