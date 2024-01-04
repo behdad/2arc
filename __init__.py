@@ -80,26 +80,16 @@ def lines_2arc_connection(l0, l1):
 
     # Find start/end of arcs
 
-    theta01 = math.degrees(
-        math.pi * 0.5 - math.atan2(l0[1].real - c0.real, l0[1].imag - c0.imag)
-    )
-    theta02 = math.degrees(
-        math.pi * 0.5
-        - math.atan2(
-            arcs_meeting_point.real - c0.real, arcs_meeting_point.imag - c0.imag
-        )
+    theta01 = math.pi * 0.5 - math.atan2(l0[1].real - c0.real, l0[1].imag - c0.imag)
+    theta02 = math.pi * 0.5 - math.atan2(
+        arcs_meeting_point.real - c0.real, arcs_meeting_point.imag - c0.imag
     )
     if cross(d0, connection) < 0:
         theta01, theta02 = theta02, theta01
 
-    theta11 = math.degrees(
-        math.pi * 0.5 - math.atan2(l1[0].real - c1.real, l1[0].imag - c1.imag)
-    )
-    theta12 = math.degrees(
-        math.pi * 0.5
-        - math.atan2(
-            arcs_meeting_point.real - c1.real, arcs_meeting_point.imag - c1.imag
-        )
+    theta11 = math.pi * 0.5 - math.atan2(l1[0].real - c1.real, l1[0].imag - c1.imag)
+    theta12 = math.pi * 0.5 - math.atan2(
+        arcs_meeting_point.real - c1.real, arcs_meeting_point.imag - c1.imag
     )
     if cross(d1, connection) < 0:
         theta11, theta12 = theta12, theta11
@@ -143,8 +133,8 @@ def plot_lines_2arc_connection(plt, l0, l1, solution):
         r0 * 2,
         r0 * 2,
         angle=0,
-        theta1=theta01,
-        theta2=theta02,
+        theta1=math.degrees(theta01),
+        theta2=math.degrees(theta02),
         linewidth=4,
         color="blue",
     )
@@ -153,8 +143,8 @@ def plot_lines_2arc_connection(plt, l0, l1, solution):
         r1 * 2,
         r1 * 2,
         angle=0,
-        theta1=theta11,
-        theta2=theta12,
+        theta1=math.degrees(theta11),
+        theta2=math.degrees(theta12),
         linewidth=4,
         color="blue",
     )
