@@ -34,12 +34,9 @@ def lines_2arc_connection(l0, l1):
 
     # Find the centers of the arcs
     rotate90 = complex(0, 1)
-    c0 = lines_intersection(
-        l0[1], d0 * rotate90, arcs_meeting_point, connection * rotate90
-    )
-    c1 = lines_intersection(
-        l1[0], d1 * rotate90, arcs_meeting_point, connection * rotate90
-    )
+    connection_normal = connection * rotate90
+    c0 = lines_intersection(l0[1], d0 * rotate90, arcs_meeting_point, connection_normal)
+    c1 = lines_intersection(l1[0], d1 * rotate90, arcs_meeting_point, connection_normal)
     if c0 is None or c1 is None:
         # Single-arc solution
         c0 = c1 = l0[1] + d0r
