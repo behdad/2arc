@@ -1,13 +1,5 @@
 import math
 
-p0 = 0, 0
-p1 = 0, 1
-p2 = 1, 1.2
-p3 = 1.4, 0
-
-l0 = (complex(*p0), complex(*p1))
-l1 = (complex(*p2), complex(*p3))
-
 
 def dot(a, b):
     return a.real * b.real + a.imag * b.imag
@@ -112,37 +104,53 @@ def lines_2arc_connection(l0, l1):
     return (c0, r0, theta01, theta02), (c1, r1, theta11, theta12), arcs_meeting_point
 
 
-(
-    (c0, r0, theta01, theta02),
-    (c1, r1, theta11, theta12),
-    arcs_meeting_point,
-) = lines_2arc_connection(l0, l1)
+if __name__ == "__main__":
+    p0 = 0, 0
+    p1 = 0, 1
+    p2 = 1, 1.2
+    p3 = 1.4, 0
 
-single_arc = False
-if abs(c0 - c1) < 1e-6:
-    print("Single arc")
-    single_arc = True
+    l0 = (complex(*p0), complex(*p1))
+    l1 = (complex(*p2), complex(*p3))
 
-# Plot them
-import matplotlib.pyplot as plt
-from matplotlib.patches import Arc
+    (
+        (c0, r0, theta01, theta02),
+        (c1, r1, theta11, theta12),
+        arcs_meeting_point,
+    ) = lines_2arc_connection(l0, l1)
 
-plt.plot(*zip(p0, p1), color="black")
-plt.plot(*zip(p2, p3), color="black")
-# Draw arcs meeting point
-if not single_arc:
-    plt.plot(
-        [arcs_meeting_point.real], [arcs_meeting_point.imag], marker="o", color="red"
+    single_arc = False
+    if abs(c0 - c1) < 1e-6:
+        print("Single arc")
+        single_arc = True
+
+    # Plot them
+    import matplotlib.pyplot as plt
+    from matplotlib.patches import Arc
+
+    plt.plot(*zip(p0, p1), color="black")
+    plt.plot(*zip(p2, p3), color="black")
+    # Draw arcs meeting point
+    if not single_arc:
+        plt.plot(
+            [arcs_meeting_point.real],
+            [arcs_meeting_point.imag],
+            marker="o",
+            color="red",
+        )
+    # Draw arc centers
+    plt.plot([c0.real], [c0.imag], marker="o", color="green")
+    plt.plot([c1.real], [c1.imag], marker="o", color="green")
+    # Draw the arcs
+    arc0 = Arc(
+        (c0.real, c0.imag), r0 * 2, r0 * 2, angle=0, theta1=theta01, theta2=theta02
     )
-# Draw arc centers
-plt.plot([c0.real], [c0.imag], marker="o", color="green")
-plt.plot([c1.real], [c1.imag], marker="o", color="green")
-# Draw the arcs
-arc0 = Arc((c0.real, c0.imag), r0 * 2, r0 * 2, angle=0, theta1=theta01, theta2=theta02)
-arc1 = Arc((c1.real, c1.imag), r1 * 2, r1 * 2, angle=0, theta1=theta11, theta2=theta12)
-plt.gca().add_patch(arc0)
-plt.gca().add_patch(arc1)
-# Aspect ratio 1
-plt.gca().set_aspect("equal", adjustable="box")
+    arc1 = Arc(
+        (c1.real, c1.imag), r1 * 2, r1 * 2, angle=0, theta1=theta11, theta2=theta12
+    )
+    plt.gca().add_patch(arc0)
+    plt.gca().add_patch(arc1)
+    # Aspect ratio 1
+    plt.gca().set_aspect("equal", adjustable="box")
 
-plt.show()
+    plt.show()
