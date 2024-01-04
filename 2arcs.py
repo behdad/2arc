@@ -87,8 +87,12 @@ def plot_lines_2arc_connection(plt, l0, l1, solution):
     if abs(c0 - c1) < 1e-6:
         single_arc = True
 
-    plt.plot([l0[0].real, l0[1].real], [l0[0].imag, l0[1].imag], color="black", linewidth=1)
-    plt.plot([l1[0].real, l1[1].real], [l1[0].imag, l1[1].imag], color="black", linewidth=1)
+    plt.plot(
+        [l0[0].real, l0[1].real], [l0[0].imag, l0[1].imag], color="black", linewidth=4
+    )
+    plt.plot(
+        [l1[0].real, l1[1].real], [l1[0].imag, l1[1].imag], color="black", linewidth=4
+    )
     # Draw arcs meeting point
     if not single_arc:
         plt.plot(
@@ -102,12 +106,22 @@ def plot_lines_2arc_connection(plt, l0, l1, solution):
     plt.plot([c1.real], [c1.imag], marker="o", color="green")
     # Draw the arcs
     arc0 = Arc(
-        (c0.real, c0.imag), r0 * 2, r0 * 2, angle=0, theta1=theta01, theta2=theta02,
-        linewidth=1
+        (c0.real, c0.imag),
+        r0 * 2,
+        r0 * 2,
+        angle=0,
+        theta1=theta01,
+        theta2=theta02,
+        linewidth=4,
     )
     arc1 = Arc(
-        (c1.real, c1.imag), r1 * 2, r1 * 2, angle=0, theta1=theta11, theta2=theta12,
-        linewidth=1
+        (c1.real, c1.imag),
+        r1 * 2,
+        r1 * 2,
+        angle=0,
+        theta1=theta11,
+        theta2=theta12,
+        linewidth=4,
     )
     plt.add_patch(arc0)
     plt.add_patch(arc1)
