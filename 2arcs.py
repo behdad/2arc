@@ -8,14 +8,20 @@ p3 = 1.4, 0
 l0 = (complex(*p0), complex(*p1))
 l1 = (complex(*p2), complex(*p3))
 
+
 def dot(a, b):
     return a.real * b.real + a.imag * b.imag
+
 
 def cross(a, b):
     return a.real * b.imag - a.imag * b.real
 
+
 def angle(v0, v1):
-    return math.acos(dot(v0, v1) / (abs(v0) * abs(v1))) * (1 if cross(v0, v1) >= 0 else -1)
+    return math.acos(dot(v0, v1) / (abs(v0) * abs(v1))) * (
+        1 if cross(v0, v1) >= 0 else -1
+    )
+
 
 def lines_intersection(l0, l1):
     print("Lines intersection:", l0, l1)
@@ -29,8 +35,8 @@ def lines_intersection(l0, l1):
     t = cross(s2, p0 - p2) / c
     return p0 + (t * s1)
 
-def lines_2arc_connection(l0, l1):
 
+def lines_2arc_connection(l0, l1):
     connection = l1[0] - l0[1]
     d0 = l0[1] - l0[0]
     d1 = l1[1] - l1[0]
@@ -58,14 +64,21 @@ def lines_2arc_connection(l0, l1):
     print("Arcs meeting point:", arcs_meeting_point)
 
     # Find the centers of the arcs
-    c0 = lines_intersection((l0[1], l0[1] + d0 * complex(0, 1)), (arcs_meeting_point, arcs_meeting_point + connection * complex(0, 1)))
-    c1 = lines_intersection((l1[0], l1[0] + d1 * complex(0, 1)), (arcs_meeting_point, arcs_meeting_point + connection * complex(0, 1)))
+    c0 = lines_intersection(
+        (l0[1], l0[1] + d0 * complex(0, 1)),
+        (arcs_meeting_point, arcs_meeting_point + connection * complex(0, 1)),
+    )
+    c1 = lines_intersection(
+        (l1[0], l1[0] + d1 * complex(0, 1)),
+        (arcs_meeting_point, arcs_meeting_point + connection * complex(0, 1)),
+    )
     print("Arc centers: ", c0, c1)
     if c0 is None or c1 is None:
         # Single-arc solution
         c0 = c1 = l0[1] + d0r
 
     return c0, c1, arcs_meeting_point, sign
+
 
 c0, c1, arcs_meeting_point, sign = lines_2arc_connection(l0, l1)
 
@@ -77,35 +90,49 @@ if abs(c0 - c1) < 1e-6:
 # Find the radius of the arcs
 r0 = abs(c0 - arcs_meeting_point)
 r1 = abs(c1 - arcs_meeting_point)
-assert abs(r0 - abs(c0 - l0[1])) < 1e-6, "r0: %f, abs(c0 - l0[1]): %f" % (r0, abs(c0 - l0[1]))
-assert abs(r1 - abs(c1 - l1[0])) < 1e-6, "r1: %f, abs(c1 - l1[0]): %f" % (r1, abs(c1 - l1[0]))
+assert abs(r0 - abs(c0 - l0[1])) < 1e-6, "r0: %f, abs(c0 - l0[1]): %f" % (
+    r0,
+    abs(c0 - l0[1]),
+)
+assert abs(r1 - abs(c1 - l1[0])) < 1e-6, "r1: %f, abs(c1 - l1[0]): %f" % (
+    r1,
+    abs(c1 - l1[0]),
+)
 
 # Plot them
 import matplotlib.pyplot as plt
 from matplotlib.patches import Arc
-plt.plot(*zip(p0, p1), color='black')
-plt.plot(*zip(p2, p3), color='black')
+
+plt.plot(*zip(p0, p1), color="black")
+plt.plot(*zip(p2, p3), color="black")
 # Draw arcs meeting point
 if not single_arc:
-    plt.plot([arcs_meeting_point.real], [arcs_meeting_point.imag], marker='o', color='red')
+    plt.plot(
+        [arcs_meeting_point.real], [arcs_meeting_point.imag], marker="o", color="red"
+    )
 # Draw arc centers
-plt.plot([c0.real], [c0.imag], marker='o', color='green')
-plt.plot([c1.real], [c1.imag], marker='o', color='green')
+plt.plot([c0.real], [c0.imag], marker="o", color="green")
+plt.plot([c1.real], [c1.imag], marker="o", color="green")
 # Draw the arcs
-theta1 = math.degrees(math.pi * .5 - math.atan2(arcs_meeting_point.real - c0.real, arcs_meeting_point.imag - c0.imag))
-theta2 = math.degrees(math.pi * .5 - math.atan2(p1[0] - c0.real, p1[1] - c0.imag))
+theta1 = math.degrees(
+    math.pi * 0.5
+    - math.atan2(arcs_meeting_point.real - c0.real, arcs_meeting_point.imag - c0.imag)
+)
+theta2 = math.degrees(math.pi * 0.5 - math.atan2(p1[0] - c0.real, p1[1] - c0.imag))
 if sign > 0:
     theta1, theta2 = theta2, theta1
-arc0 = Arc((c0.real, c0.imag) , r0 * 2, r0 * 2, angle=0, theta1=theta1, theta2=theta2)
-theta1 = math.degrees(math.pi * .5 - math.atan2(p2[0] - c1.real, p2[1] - c1.imag))
-theta2 = math.degrees(math.pi * .5 - math.atan2(arcs_meeting_point.real - c1.real, arcs_meeting_point.imag - c1.imag))
+arc0 = Arc((c0.real, c0.imag), r0 * 2, r0 * 2, angle=0, theta1=theta1, theta2=theta2)
+theta1 = math.degrees(math.pi * 0.5 - math.atan2(p2[0] - c1.real, p2[1] - c1.imag))
+theta2 = math.degrees(
+    math.pi * 0.5
+    - math.atan2(arcs_meeting_point.real - c1.real, arcs_meeting_point.imag - c1.imag)
+)
 if sign > 0:
     theta1, theta2 = theta2, theta1
-arc1 = Arc((c1.real, c1.imag) , r1 * 2, r1 * 2, angle=0, theta1=theta1, theta2=theta2)
+arc1 = Arc((c1.real, c1.imag), r1 * 2, r1 * 2, angle=0, theta1=theta1, theta2=theta2)
 plt.gca().add_patch(arc0)
 plt.gca().add_patch(arc1)
 # Aspect ratio 1
-plt.gca().set_aspect('equal', adjustable='box')
+plt.gca().set_aspect("equal", adjustable="box")
 
 plt.show()
-
