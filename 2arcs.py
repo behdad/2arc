@@ -39,7 +39,7 @@ def lines_2arc_connection(l0, l1):
     c1 = lines_intersection(l1[0], d1 * rotate90, arcs_meeting_point, connection_normal)
     if c0 is None or c1 is None:
         # Single-arc solution
-        c0 = c1 = l0[1] + d0r
+        c0 = c1 = l0[1] + connection * 0.5
 
     # Find the radius of the arcs
     r0 = abs(c0 - arcs_meeting_point)
