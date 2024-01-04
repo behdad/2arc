@@ -173,26 +173,23 @@
             context.lineTo(l0[1].real, l0[1].imag);
             context.moveTo(l1[0].real, l1[0].imag);
             context.lineTo(l1[1].real, l1[1].imag);
-            context.lineWidth = 0.05;
             context.strokeStyle = 'black';
             context.stroke();
 
             if (!singleArc) {
                 context.beginPath();
-                context.arc(arcsMeetingPoint.real, arcsMeetingPoint.imag, 0.1, 0, 2 * Math.PI);
+                context.arc(arcsMeetingPoint.real, arcsMeetingPoint.imag, context.lineWidth * 1.5, 0, 2 * Math.PI);
                 context.fillStyle = 'red';
                 context.fill();
             }
 
             context.beginPath();
             context.arc(c0.real, c0.imag, r0, theta01, theta02);
-            context.lineWidth = 0.05;
             context.strokeStyle = 'blue';
             context.stroke();
 
             context.beginPath();
             context.arc(c1.real, c1.imag, r1, theta11, theta12);
-            context.lineWidth = 0.05;
             context.strokeStyle = 'blue';
             context.stroke();
         }
@@ -205,6 +202,27 @@
             const cellHeight = canvas.height / h;
 
             tests.forEach((test, index) => {
+
+                function calculateBounds(test) {
+                    const xs = test.flatMap(p => [p[0]]);
+                    const ys = test.flatMap(p => [p[1]]);
+                    return {
+                        minX: Math.min(...xs),
+                        maxX: Math.max(...xs),
+                        minY: Math.min(...ys),
+                        maxY: Math.max(...ys)
+                    };
+                }
+
+                function calculateScaleAndTranslation(bounds, cellWidth, cellHeight) {
+                    const scaleX = cellWidth / (bounds.maxX - bounds.minX);
+                    const scaleY = cellHeight / (bounds.maxY - bounds.minY);
+                    const scale = Math.min(scaleX, scaleY) * .5;
+                    const translateX = (cellWidth - (bounds.maxX - bounds.minX) * scale) / 2;
+                    const translateY = (cellHeight - (bounds.maxY - bounds.minY) * scale) / 2;
+                    return { scale, translateX, translateY };
+                }
+
                 const [p0, p1, p2, p3] = test;
                 const l0 = [new Complex(p0[0], p0[1]), new Complex(p1[0], p1[1])];
                 const l1 = [new Complex(p2[0], p2[1]), new Complex(p3[0], p3[1])];
@@ -213,13 +231,16 @@
                 ctx.save();
                 ctx.translate((index % w) * cellWidth, Math.floor(index / w) * cellHeight);
 
-                // Adjust the scale and translation based on your data's range
-                const scale = Math.min(cellWidth, cellHeight) / 4; // Example scale factor
+                // Calculate bounds and adjust the scale and translation
+                const bounds = calculateBounds(test);
+                const { scale, translateX, translateY } = calculateScaleAndTranslation(bounds, cellWidth, cellHeight);
                 ctx.scale(scale, scale);
-                ctx.lineWidth = 0.05 / scale; // Adjust line width based on scale
+                ctx.lineWidth = 5 / scale; // Adjust line width based on scale
 
-                // Translate to the center of each cell
-                ctx.translate(cellWidth / (2 * scale), cellHeight / (2 * scale));
+                // Translate to center the drawing in the cell
+                ctx.translate(translateX / scale, translateY / scale);
+                ctx.scale(1, -1);
+                ctx.translate(bounds.minX, -bounds.maxY);
 
                 drawLinesAndArcs(ctx, l0, l1, solution);
                 ctx.restore();
