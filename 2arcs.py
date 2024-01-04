@@ -104,32 +104,23 @@ def lines_2arc_connection(l0, l1):
     return (c0, r0, theta01, theta02), (c1, r1, theta11, theta12), arcs_meeting_point
 
 
-if __name__ == "__main__":
-    p0 = 0, 0
-    p1 = 0, 1
-    p2 = 1, 1.2
-    p3 = 1.4, 0
-
-    l0 = (complex(*p0), complex(*p1))
-    l1 = (complex(*p2), complex(*p3))
+def plot_lines_2arc_connection(l0, l1, solution):
+    import matplotlib.pyplot as plt
+    from matplotlib.patches import Arc
 
     (
         (c0, r0, theta01, theta02),
         (c1, r1, theta11, theta12),
         arcs_meeting_point,
-    ) = lines_2arc_connection(l0, l1)
+    ) = solution
 
     single_arc = False
     if abs(c0 - c1) < 1e-6:
         print("Single arc")
         single_arc = True
 
-    # Plot them
-    import matplotlib.pyplot as plt
-    from matplotlib.patches import Arc
-
-    plt.plot(*zip(p0, p1), color="black")
-    plt.plot(*zip(p2, p3), color="black")
+    plt.plot([l0[0].real, l0[1].real], [l0[0].imag, l0[1].imag], color="black")
+    plt.plot([l1[0].real, l1[1].real], [l1[0].imag, l1[1].imag], color="black")
     # Draw arcs meeting point
     if not single_arc:
         plt.plot(
@@ -150,6 +141,22 @@ if __name__ == "__main__":
     )
     plt.gca().add_patch(arc0)
     plt.gca().add_patch(arc1)
+
+
+if __name__ == "__main__":
+    p0 = 0, 0
+    p1 = 0, 1
+    p2 = 1, 1.2
+    p3 = 1.4, 0
+
+    # Plot them
+    import matplotlib.pyplot as plt
+
+    l0 = (complex(*p0), complex(*p1))
+    l1 = (complex(*p2), complex(*p3))
+    solution = lines_2arc_connection(l0, l1)
+    plot_lines_2arc_connection(l0, l1, solution)
+
     # Aspect ratio 1
     plt.gca().set_aspect("equal", adjustable="box")
 
