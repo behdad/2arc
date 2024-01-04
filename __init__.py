@@ -1,6 +1,10 @@
 import math
 
 
+def dot(a, b):
+    return a.real * b.real + a.imag * b.imag
+
+
 def cross(a, b):
     return a.real * b.imag - a.imag * b.real
 
@@ -18,22 +22,43 @@ def lines_intersection(p0, d0, p1, d1):
 
 
 def lines_2arc_connection(l0, l1):
+    rotate90 = complex(0, 1)
     connection = normalize(l1[0] - l0[1])
     d0 = normalize(l0[1] - l0[0])
     d1 = normalize(l1[1] - l1[0])
 
-    # Mid-angle
-    d0r = d0 + connection
-    d1r = d1 + connection
+    # Two separate algorithms for the two cases
+    if dot(d0, d1) > 0:
+        p0 = l0[1]
+        p1 = l1[0]
 
-    rotate90 = complex(0, 1)
+        t = 0.5
 
-    # Find the intersection of the new lines
-    arcs_meeting_point = lines_intersection(l0[1], d0r, l1[0], d1r)
-    if arcs_meeting_point is None:
-        # Parallel lines
-        arcs_meeting_point = (l0[1] + l1[0]) * 0.5
-        connection = d0 * rotate90 * (1 if cross(d0, connection) > 0 else -1)
+        # Solve for arcs_meeting_point
+        # c0 = (arcs_meeting_point - l0[1]) ** 2 / d0
+        # c1 = (arcs_meeting_point - l1[0]) ** 2 / d1
+        # c0 == t * c1
+
+        a = d1 - t * d0
+        b = -2 * (d1 * p0 - t * d0 * p1)
+        c = d1 * p0 * p0 - t * d0 * p1 * p1
+
+        delta = b * b - 4 * a * c
+        x1 = (-b - delta**0.5) / (2 * a)
+
+        arcs_meeting_point = x1
+
+        v = normalize(arcs_meeting_point - l0[1])
+        connection = v * v / d0
+
+    else:
+        # Mid-angle
+        d0r = d0 + connection
+        d1r = d1 + connection
+
+        # Find the intersection of the new lines
+        arcs_meeting_point = lines_intersection(l0[1], d0r, l1[0], d1r)
+        assert arcs_meeting_point is not None
 
     # Find the centers of the arcs
     connection_normal = connection * rotate90
@@ -47,12 +72,14 @@ def lines_2arc_connection(l0, l1):
     r0 = abs(c0 - arcs_meeting_point)
     r1 = abs(c1 - arcs_meeting_point)
     # Double-check the solution
-    #assert abs(r0 - abs(c0 - l0[1])) < 1e-6, (r0, abs(c0 - l0[1]))
-    #assert abs(r1 - abs(c1 - l1[0])) < 1e-6, (r1, abs(c1 - l1[0]))
+    # assert abs(r0 - abs(c0 - l0[1])) < 1e-6, (r0, abs(c0 - l0[1]))
+    # assert abs(r1 - abs(c1 - l1[0])) < 1e-6, (r1, abs(c1 - l1[0]))
 
     # Find start/end of arcs
 
-    theta01 = math.degrees(math.pi * 0.5 - math.atan2(p1[0] - c0.real, p1[1] - c0.imag))
+    theta01 = math.degrees(
+        math.pi * 0.5 - math.atan2(l0[1].real - c0.real, l0[1].imag - c0.imag)
+    )
     theta02 = math.degrees(
         math.pi * 0.5
         - math.atan2(
@@ -62,7 +89,9 @@ def lines_2arc_connection(l0, l1):
     if cross(d0, connection) < 0:
         theta01, theta02 = theta02, theta01
 
-    theta11 = math.degrees(math.pi * 0.5 - math.atan2(p2[0] - c1.real, p2[1] - c1.imag))
+    theta11 = math.degrees(
+        math.pi * 0.5 - math.atan2(l1[0].real - c1.real, l1[0].imag - c1.imag)
+    )
     theta12 = math.degrees(
         math.pi * 0.5
         - math.atan2(
@@ -136,17 +165,20 @@ if __name__ == "__main__":
         ((0, 0), (0, 1), (1, 1.2), (0.8, 0)),
         ((0, 0), (0, 1), (1, 1.5), (2, 1.5)),
         ((0, 0), (0, 1), (1, 2), (2, 2)),
-
         ((0, 0), (0, -1), (1, -1), (1, 0)),
         ((0, 0), (0, -1), (1, -1.2), (1, 0)),
         ((0, 0), (0, -1), (1, -1.2), (1.4, 0)),
         ((0, 0), (0, -1), (1, -1.2), (0.8, 0)),
         ((0, 0), (0, -1), (1, -1.5), (2, -1.5)),
         ((0, 0), (0, -1), (1, -2), (2, -2)),
-
         ((0, 0), (0, 1), (1, 2), (1, 3)),
         ((0, 0), (0, -1), (1, -2), (1, -3)),
-        #((0, 0), (0, 1), (1, 2), (1.2, 3)),
+        ((0, 0), (0, 1), (1, 3), (1, 4)),
+        ((0, 0), (0, -1), (1, -3), (1, -4)),
+        ((0, 0), (0, 1), (1, 2), (1.2, 3)),
+        ((0, 0), (0, 1), (1, 2), (1.2, 2)),
+        ((0, 0), (0, 1), (1, 2), (1.2, 2.1)),
+        ((0, 0), (0, -1), (1, -2), (1.2, -2.1)),
     ]
 
     # Plot them
