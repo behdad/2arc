@@ -5,16 +5,12 @@ def cross(a, b):
     return a.real * b.imag - a.imag * b.real
 
 
-def lines_intersection(l0, l1):
-    p0, p1 = l0
-    p2, p3 = l1
-    s1 = p1 - p0
-    s2 = p3 - p2
-    c = cross(s1, s2)
+def lines_intersection(p0, d0, p1, d1):
+    c = cross(d0, d1)
     if abs(c) < 1e-6:
         return None
-    t = cross(s2, p1 - p2) / c
-    return p1 + (t * s1)
+    t = cross(d1, p0 - p1) / c
+    return p0 + (t * d0)
 
 
 def lines_2arc_connection(l0, l1):
@@ -27,7 +23,7 @@ def lines_2arc_connection(l0, l1):
     d1r = d1 + connection
 
     # Find the intersection of the new lines
-    arcs_meeting_point = lines_intersection((l0[1], l0[1] + d0r), (l1[0], l1[0] - d1r))
+    arcs_meeting_point = lines_intersection(l0[1], d0r, l1[0], -d1r)
     if arcs_meeting_point is None:
         # Parallel lines
         arcs_meeting_point = (l0[1] + l1[0]) * 0.5
@@ -35,12 +31,10 @@ def lines_2arc_connection(l0, l1):
     # Find the centers of the arcs
     rotate90 = complex(0, 1)
     c0 = lines_intersection(
-        (l0[1], l0[1] + d0 * rotate90),
-        (arcs_meeting_point, arcs_meeting_point + connection * rotate90),
+        l0[1], d0 * rotate90, arcs_meeting_point, connection * rotate90
     )
     c1 = lines_intersection(
-        (l1[0], l1[0] + d1 * rotate90),
-        (arcs_meeting_point, arcs_meeting_point + connection * rotate90),
+        l1[0], d1 * rotate90, arcs_meeting_point, connection * rotate90
     )
     if c0 is None or c1 is None:
         # Single-arc solution
