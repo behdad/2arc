@@ -5,6 +5,10 @@ def cross(a, b):
     return a.real * b.imag - a.imag * b.real
 
 
+def normalize(d):
+    return d / abs(d)
+
+
 def lines_intersection(p0, d0, p1, d1):
     c = cross(d0, d1)
     if abs(c) < 1e-6:
@@ -14,9 +18,9 @@ def lines_intersection(p0, d0, p1, d1):
 
 
 def lines_2arc_connection(l0, l1):
-    connection = (l1[0] - l0[1]) / abs(l1[0] - l0[1])
-    d0 = (l0[1] - l0[0]) / abs(l0[1] - l0[0])
-    d1 = (l1[1] - l1[0]) / abs(l1[1] - l1[0])
+    connection = normalize(l1[0] - l0[1])
+    d0 = normalize(l0[1] - l0[0])
+    d1 = normalize(l1[1] - l1[0])
 
     # Rotate d0, d1 by a0, a1
     d0r = d0 + connection
