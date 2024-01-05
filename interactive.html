@@ -108,18 +108,12 @@
                 let x1;
                 if (a.abs()) {
                     const delta = b.multiply(b).subtract(a.multiply(c).scale(4));
-                    x0 = (b.negate().add(delta.sqrt()).divide(a.scale(2)));
                     x1 = (b.negate().subtract(delta.sqrt()).divide(a.scale(2)));
-                    // How to choose between them?
-                    if (x0.subtract(p0).abs() + x0.subtract(p1).abs() > x1.subtract(p0).abs() + x1.subtract(p1).abs()) {
-                        arcsMeetingPoint = x0;
-                    } else {
-                        arcsMeetingPoint = x1;
-                    }
                 } else {
-                    arcsMeetingPoint = c.negate().divide(b);
+                    x1 = c.negate().divide(b);
                 }
 
+                arcsMeetingPoint = x1;
                 const v = normalize(arcsMeetingPoint.subtract(l0[1]));
                 connection = v.multiply(v).divide(d0);
             } else {
