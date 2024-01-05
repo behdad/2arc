@@ -171,12 +171,8 @@
             let handles = [line1.firstSegment.point, line1.lastSegment.point, line2.firstSegment.point, line2.lastSegment.point];
 
             function updateArcs() {
-                // Clear previous arcs
-                project.activeLayer.children.forEach(child => {
-                    if (child !== line1 && child !== line2) {
-                        child.remove();
-                    }
-                });
+                // Clear previous arcs and circles
+                project.activeLayer.removeChildren(2);
 
                 let circles = handles.map(handle => {
                     let circle = new Path.Circle({
