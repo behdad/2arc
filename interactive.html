@@ -76,7 +76,7 @@
         }
 
         function normalize(d) {
-            return d.divide(new Complex(d.abs(), 0));
+            return d.scale(1 / d.abs());
         }
 
         function linesIntersection(p0, d0, p1, d1) {
@@ -136,14 +136,17 @@
             const r0 = c0 ? c0.subtract(arcsMeetingPoint).abs() : null;
             const r1 = c1 ? c1.subtract(arcsMeetingPoint).abs() : null;
 
-            let theta01 = Math.atan2(l0[1].imag - c0.imag, l0[1].real - c0.real);
-            let theta02 = Math.atan2(arcsMeetingPoint.imag - c0.imag, arcsMeetingPoint.real - c0.real);
-            if (cross(d0, connection) < 0)
-                [theta01, theta02] = [theta02, theta01]
+            let theta01 = Math.atan2(arcsMeetingPoint.imag - c0.imag, arcsMeetingPoint.real - c0.real);
+            let theta02 = Math.atan2(l0[1].imag - c0.imag, l0[1].real - c0.real);
+
             let theta11 = Math.atan2(l1[0].imag - c1.imag, l1[0].real - c1.real);
             let theta12 = Math.atan2(arcsMeetingPoint.imag - c1.imag, arcsMeetingPoint.real - c1.real);
-            if (cross(d1, connection) < 0)
-                [theta11, theta12] = [theta12, theta11]
+
+            const negative = cross(arcsMeetingPoint.subtract(l0[1]), arcsMeetingPoint.subtract(l0[0])) < 0;
+            if (negative) {
+                [theta01, theta02] = [theta02, theta01];
+                [theta11, theta12] = [theta12, theta11];
+            }
 
             arc0 = { center: c0, radius: r0, startAngle: theta01, endAngle: theta02 };
             arc1 = { center: c1, radius: r1, startAngle: theta11, endAngle: theta12 };
@@ -200,6 +203,7 @@
 
                     function drawArc(center, radius, startAngle, endAngle) {
                         // Calculate start, through, and end points of the arc
+                        if (endAngle < startAngle) endAngle += 2 * Math.PI;
                         var startPoint = center.add(new Point(radius * Math.cos(startAngle), radius * Math.sin(startAngle)));
                         var throughPoint = center.add(new Point(radius * Math.cos((startAngle + endAngle) / 2), radius * Math.sin((startAngle + endAngle) / 2)));
                         var endPoint = center.add(new Point(radius * Math.cos(endAngle), radius * Math.sin(endAngle)));
