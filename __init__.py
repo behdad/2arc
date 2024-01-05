@@ -80,18 +80,18 @@ def lines_2arc_connection(l0, l1):
 
     # Find start/end of arcs
 
-    theta01 = math.pi * 0.5 - math.atan2(l0[1].real - c0.real, l0[1].imag - c0.imag)
-    theta02 = math.pi * 0.5 - math.atan2(
+    theta01 = math.pi * 0.5 - math.atan2(
         arcs_meeting_point.real - c0.real, arcs_meeting_point.imag - c0.imag
     )
-    if cross(d0, connection) < 0:
+    theta02 = math.pi * 0.5 - math.atan2(l0[1].real - c0.real, l0[1].imag - c0.imag)
+    if dot(d0, (c0 - l0[1]) * rotate90) < 0:
         theta01, theta02 = theta02, theta01
 
     theta11 = math.pi * 0.5 - math.atan2(l1[0].real - c1.real, l1[0].imag - c1.imag)
     theta12 = math.pi * 0.5 - math.atan2(
         arcs_meeting_point.real - c1.real, arcs_meeting_point.imag - c1.imag
     )
-    if cross(d1, connection) < 0:
+    if dot(d1, (c1 - l1[0]) * rotate90) < 0:
         theta11, theta12 = theta12, theta11
 
     return (c0, r0, theta01, theta02), (c1, r1, theta11, theta12), arcs_meeting_point
