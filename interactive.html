@@ -17,6 +17,8 @@
 </head>
 <body>
     <canvas id="myCanvas" width="800" height="800"></canvas>
+    <br>
+    <label for="shortest">Shortest:</label> <input type="checkbox" id="shortest" name="shortest" checked>
 
     <script>
         class Complex {
@@ -218,7 +220,8 @@
                 let l0 = [new Complex(line1.firstSegment.point.x, line1.firstSegment.point.y), new Complex(line1.lastSegment.point.x, line1.lastSegment.point.y)];
                 let l1 = [new Complex(line2.firstSegment.point.x, line2.firstSegment.point.y), new Complex(line2.lastSegment.point.x, line2.lastSegment.point.y)];
 
-                let solution = lines2ArcConnection(l0, l1);
+                const shortest = document.getElementById("shortest").checked;
+                let solution = lines2ArcConnection(l0, l1, shortest);
 
                 if (solution) {
 
@@ -280,6 +283,8 @@
             view.onMouseDown = onMouseDown;
             view.onMouseDrag = onMouseDrag;
             view.onMouseUp = onMouseUp;
+
+            document.getElementById("shortest").onchange = updateArcs;
         };
     </script>
 </body>
