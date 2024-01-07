@@ -45,56 +45,69 @@ def lines_2arc_connection(l0, l1):
 
         if a:
             delta = b * b - 4 * a * c
+            x0 = (-b + delta**0.5) / (2 * a)
             x1 = (-b - delta**0.5) / (2 * a)
         else:
-            x1 = -c / b
+            x0 = x1 = -c / b
 
         arcs_meeting_point = x1
-
-        v = normalize(arcs_meeting_point - l0[1])
-        connection = v * v / d0
-
     else:
         # Mid-angle
         d0r = d0 + connection
         d1r = d1 + connection
 
         # Find the intersection of the new lines
-        arcs_meeting_point = lines_intersection(l0[1], d0r, l1[0], d1r)
-        assert arcs_meeting_point is not None
+        x0 = x1 = lines_intersection(l0[1], d0r, l1[0], d1r)
+        assert x0 is not None
 
-    # Find the centers of the arcs
-    connection_normal = connection * rotate90
-    c0 = lines_intersection(l0[1], d0 * rotate90, arcs_meeting_point, connection_normal)
-    c1 = lines_intersection(l1[0], d1 * rotate90, arcs_meeting_point, connection_normal)
-    if c0 is None or c1 is None:
-        # Single-arc solution
-        c0 = c1 = l0[1] + connection * 0.5
+    last_score = 0;
+    for i, arcs_meeting_point in enumerate([x0, x1]):
 
-    # Find the radius of the arcs
-    r0 = abs(c0 - arcs_meeting_point)
-    r1 = abs(c1 - arcs_meeting_point)
-    # Double-check the solution
-    # assert abs(r0 - abs(c0 - l0[1])) < 1e-6, (r0, abs(c0 - l0[1]))
-    # assert abs(r1 - abs(c1 - l1[0])) < 1e-6, (r1, abs(c1 - l1[0]))
+        v = normalize(arcs_meeting_point - l0[1])
+        connection = v * v / d0
 
-    # Find start/end of arcs
+        # Find the centers of the arcs
+        connection_normal = connection * rotate90
+        c0 = lines_intersection(l0[1], d0 * rotate90, arcs_meeting_point, connection_normal)
+        c1 = lines_intersection(l1[0], d1 * rotate90, arcs_meeting_point, connection_normal)
+        if c0 is None or c1 is None:
+            # Single-arc solution
+            c0 = c1 = l0[1] + connection * 0.5
 
-    theta01 = math.pi * 0.5 - math.atan2(
-        arcs_meeting_point.real - c0.real, arcs_meeting_point.imag - c0.imag
-    )
-    theta02 = math.pi * 0.5 - math.atan2(l0[1].real - c0.real, l0[1].imag - c0.imag)
-    if dot(d0, (c0 - l0[1]) * rotate90) < 0:
-        theta01, theta02 = theta02, theta01
+        # Find the radius of the arcs
+        r0 = abs(c0 - arcs_meeting_point)
+        r1 = abs(c1 - arcs_meeting_point)
+        # Double-check the solution
+        # assert abs(r0 - abs(c0 - l0[1])) < 1e-6, (r0, abs(c0 - l0[1]))
+        # assert abs(r1 - abs(c1 - l1[0])) < 1e-6, (r1, abs(c1 - l1[0]))
 
-    theta11 = math.pi * 0.5 - math.atan2(l1[0].real - c1.real, l1[0].imag - c1.imag)
-    theta12 = math.pi * 0.5 - math.atan2(
-        arcs_meeting_point.real - c1.real, arcs_meeting_point.imag - c1.imag
-    )
-    if dot(d1, (c1 - l1[0]) * rotate90) < 0:
-        theta11, theta12 = theta12, theta11
+        # Find start/end of arcs
 
-    return (c0, r0, theta01, theta02), (c1, r1, theta11, theta12), arcs_meeting_point
+        theta01 = math.pi * 0.5 - math.atan2(
+            arcs_meeting_point.real - c0.real, arcs_meeting_point.imag - c0.imag
+        )
+        theta02 = math.pi * 0.5 - math.atan2(l0[1].real - c0.real, l0[1].imag - c0.imag)
+        if dot(d0, (c0 - l0[1]) * rotate90) < 0:
+            theta01, theta02 = theta02, theta01
+        if theta02 < theta01:
+            theta02 += 2 * math.pi
+
+        theta11 = math.pi * 0.5 - math.atan2(l1[0].real - c1.real, l1[0].imag - c1.imag)
+        theta12 = math.pi * 0.5 - math.atan2(
+            arcs_meeting_point.real - c1.real, arcs_meeting_point.imag - c1.imag
+        )
+        if dot(d1, (c1 - l1[0]) * rotate90) < 0:
+            theta11, theta12 = theta12, theta11
+        if theta12 < theta11:
+            theta12 += 2 * math.pi
+
+        score = theta02 - theta01 + theta12 - theta11;
+        if i == 0 or score < last_score:
+            arc0 = (c0, r0, theta01, theta02)
+            arc1 = (c1, r1, theta11, theta12)
+        last_score = score;
+
+    return arc0, arc1, arcs_meeting_point
 
 
 def plot_lines_2arc_connection(plt, l0, l1, solution):

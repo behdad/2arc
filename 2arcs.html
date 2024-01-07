@@ -92,7 +92,11 @@
             let connection = normalize(l1[0].subtract(l0[1]));
             const d0 = normalize(l0[1].subtract(l0[0]));
             const d1 = normalize(l1[1].subtract(l1[0]));
-
+            let connection0, connection1;
+            let x0, x1;
+            let c0, c1;
+            let r0, r1;
+	    let arc0, arc1;
             let arcsMeetingPoint;
 
             if (dot(d0, d1) > 0) {
@@ -104,43 +108,54 @@
                 const b = new Complex(-2, 0).multiply(d1.multiply(p0).subtract(d0.multiply(p1).multiply(new Complex(t, 0))));
                 const c = d1.multiply(p0).multiply(p0).subtract(d0.multiply(p1).multiply(p1).multiply(new Complex(t, 0)));
 
-                let x1;
                 if (a.abs()) {
                     const delta = b.multiply(b).subtract(a.multiply(c).scale(4));
-                    x1 = (b.negate().subtract(delta.sqrt()).divide(a.scale(2)));
+                    x0 = b.negate().add(delta.sqrt()).divide(a.scale(2));
+                    x1 = b.negate().subtract(delta.sqrt()).divide(a.scale(2));
                 } else {
-                    x1 = c.negate().divide(b);
+                    x0 = x1 = c.negate().divide(b);
                 }
 
-                arcsMeetingPoint = x1;
-                const v = normalize(arcsMeetingPoint.subtract(l0[1]));
-                connection = v.multiply(v).divide(d0);
             } else {
                 const d0r = d0.add(connection);
                 const d1r = d1.add(connection);
 
-                arcsMeetingPoint = linesIntersection(l0[1], d0r, l1[0], d1r);
+                x0 = x1 = linesIntersection(l0[1], d0r, l1[0], d1r);
             }
+            let last_score = 0;
+            let score;
+            for (let i = 0; i < 2; i++) {
+                arcsMeetingPoint = i ? x1 : x0;
+                const v = normalize(arcsMeetingPoint.subtract(l0[1]));
+                connection = v.multiply(v).divide(d0);
 
-            const connectionNormal = connection.multiply(rotate90);
-            const c0 = linesIntersection(l0[1], d0.multiply(rotate90), arcsMeetingPoint, connectionNormal);
-            const c1 = linesIntersection(l1[0], d1.multiply(rotate90), arcsMeetingPoint, connectionNormal);
+                const connectionNormal = connection.multiply(rotate90);
+                const c0 = linesIntersection(l0[1], d0.multiply(rotate90), arcsMeetingPoint, connectionNormal);
+                const c1 = linesIntersection(l1[0], d1.multiply(rotate90), arcsMeetingPoint, connectionNormal);
+                const r0 = c0 ? c0.subtract(arcsMeetingPoint).abs() : null;
+                const r1 = c1 ? c1.subtract(arcsMeetingPoint).abs() : null;
 
-            const r0 = c0 ? c0.subtract(arcsMeetingPoint).abs() : null;
-            const r1 = c1 ? c1.subtract(arcsMeetingPoint).abs() : null;
+                let theta01 = Math.atan2(arcsMeetingPoint.imag - c0.imag, arcsMeetingPoint.real - c0.real);
+                let theta02 = Math.atan2(l0[1].imag - c0.imag, l0[1].real - c0.real);
+                if (dot(d0, c0.subtract(l0[1]).multiply(rotate90)) < 0)
+                    [theta01, theta02] = [theta02, theta01];
+                if (theta02 < theta01)
+                    theta02 += 2 * Math.PI;
 
-            let theta01 = Math.atan2(arcsMeetingPoint.imag - c0.imag, arcsMeetingPoint.real - c0.real);
-            let theta02 = Math.atan2(l0[1].imag - c0.imag, l0[1].real - c0.real);
-            if (dot(d0, c0.subtract(l0[1]).multiply(rotate90)) < 0)
-                [theta01, theta02] = [theta02, theta01];
+                let theta11 = Math.atan2(l1[0].imag - c1.imag, l1[0].real - c1.real);
+                let theta12 = Math.atan2(arcsMeetingPoint.imag - c1.imag, arcsMeetingPoint.real - c1.real);
+                if (dot(d1, c1.subtract(l1[0]).multiply(rotate90)) < 0)
+                    [theta11, theta12] = [theta12, theta11];
+                if (theta12 < theta11)
+                    theta12 += 2 * Math.PI;
 
-            let theta11 = Math.atan2(l1[0].imag - c1.imag, l1[0].real - c1.real);
-            let theta12 = Math.atan2(arcsMeetingPoint.imag - c1.imag, arcsMeetingPoint.real - c1.real);
-            if (dot(d1, c1.subtract(l1[0]).multiply(rotate90)) < 0)
-                [theta11, theta12] = [theta12, theta11];
-
-            arc0 = { center: c0, radius: r0, startAngle: theta01, endAngle: theta02 };
-            arc1 = { center: c1, radius: r1, startAngle: theta11, endAngle: theta12 };
+                score = theta02 - theta01 + theta12 - theta11;
+                if (i == 0 || score < last_score) {
+                    arc0 = { center: c0, radius: r0, startAngle: theta01, endAngle: theta02 };
+                    arc1 = { center: c1, radius: r1, startAngle: theta11, endAngle: theta12 };
+                }
+                last_score = score;
+            }
 
             // Before returning, check for NaN in your results
             if (isNaN(arc0.radius) || isNaN(arc0.startAngle) || isNaN(arc0.endAngle)) {
