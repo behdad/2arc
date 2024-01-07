@@ -94,14 +94,17 @@
             const d0 = normalize(l0[1].subtract(l0[0]));
             const d1 = normalize(l1[1].subtract(l1[0]));
             let connection0, connection1;
-            let x0, x1;
             let c0, c1;
             let r0, r1;
             let arc0, arc1;
             let arcsMeetingPoint;
 
-            const alg0 = dot(d0, d1) > 0;
-            if (alg0) {
+            let xs = []
+            /* We use two algorithms.
+             * Collect both solutions and pick the best one. */
+
+            // Algorithm 0
+            {
                 const p0 = l0[1];
                 const p1 = l1[0];
 
@@ -112,22 +115,31 @@
 
                 if (a.abs()) {
                     const delta = b.multiply(b).subtract(a.multiply(c).scale(4));
-                    x0 = b.negate().add(delta.sqrt()).divide(a.scale(2));
-                    x1 = b.negate().subtract(delta.sqrt()).divide(a.scale(2));
+                    const delta_sqrt = delta.sqrt();
+                    // x1 produces better results
+                    //const x0 = b.negate().add(delta_sqrt).divide(a.scale(2));
+                    const x1 = b.negate().subtract(delta_sqrt).divide(a.scale(2));
+                    //xs.push(x0);
+                    xs.push(x1);
                 } else {
-                    x0 = x1 = c.negate().divide(b);
+                    const x = c.negate().divide(b);
+                    xs.push(x);
                 }
 
-            } else {
+            }
+            // Algorithm 1
+            {
                 const d0r = d0.add(connection);
                 const d1r = d1.add(connection);
 
-                x0 = x1 = linesIntersection(l0[1], d0r, l1[0], d1r);
+                const x = linesIntersection(l0[1], d0r, l1[0], d1r);
+                if (x !== null)
+                    xs.push(x);
             }
             let last_score = 0;
             let score;
-            for (let i = 0; i < 2; i++) {
-                x = i ? x1 : x0;
+            for (let i = 0; i < xs.length; i++) {
+                x = xs[i];
                 const v = normalize(x.subtract(l0[1]));
                 connection = v.multiply(v).divide(d0);
 

@@ -27,9 +27,12 @@ def lines_2arc_connection(l0, l1):
     d0 = normalize(l0[1] - l0[0])
     d1 = normalize(l1[1] - l1[0])
 
-    # Two separate algorithms for the two cases
-    alg0 = dot(d0, d1) > 0
-    if alg0:
+    xs = []
+    # We use two algorithms.
+    # Collect both solutions and pick the best one. */
+
+    # Algorithm 0
+    if True:
         p0 = l0[1]
         p1 = l1[0]
 
@@ -46,21 +49,25 @@ def lines_2arc_connection(l0, l1):
 
         if a:
             delta = b * b - 4 * a * c
-            x0 = (-b + delta**0.5) / (2 * a)
+            # x0 = (-b + delta**0.5) / (2 * a)
             x1 = (-b - delta**0.5) / (2 * a)
+            xs.append(x1)
         else:
-            x0 = x1 = -c / b
-    else:
+            x = x1 = -c / b
+            xs.append(x1)
+    # Algorithm 1
+    if True:
         # Mid-angle
         d0r = d0 + connection
         d1r = d1 + connection
 
         # Find the intersection of the new lines
-        x0 = x1 = lines_intersection(l0[1], d0r, l1[0], d1r)
-        assert x0 is not None
+        x = lines_intersection(l0[1], d0r, l1[0], d1r)
+        if x is not None:
+            xs.append(x)
 
     last_score = 0
-    for i, x in enumerate([x0, x1]):
+    for i, x in enumerate(xs):
         v = normalize(x - l0[1])
         connection = v * v / d0
 
