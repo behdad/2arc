@@ -21,7 +21,7 @@ def lines_intersection(p0, d0, p1, d1):
     return p0 + (t * d0)
 
 
-def lines_2arc_connection(l0, l1):
+def lines_2arc_connection(l0, l1, shortest=True):
     rotate90 = complex(0, 1)
     connection = normalize(l1[0] - l0[1])
     d0 = normalize(l0[1] - l0[0])
@@ -49,7 +49,9 @@ def lines_2arc_connection(l0, l1):
 
         if a:
             delta = b * b - 4 * a * c
-            # x0 = (-b + delta**0.5) / (2 * a)
+            x0 = (-b + delta**0.5) / (2 * a)
+            if shortest:
+                xs.append(x0)
             x1 = (-b - delta**0.5) / (2 * a)
             xs.append(x1)
         else:

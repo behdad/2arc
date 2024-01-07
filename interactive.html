@@ -88,7 +88,7 @@
             return p0.add(d0.multiply(new Complex(t, 0)));
         }
 
-        function lines2ArcConnection(l0, l1) {
+        function lines2ArcConnection(l0, l1, shortest = true) {
             const rotate90 = new Complex(0, 1);
             let connection = normalize(l1[0].subtract(l0[1]));
             const d0 = normalize(l0[1].subtract(l0[0]));
@@ -116,10 +116,10 @@
                 if (a.abs()) {
                     const delta = b.multiply(b).subtract(a.multiply(c).scale(4));
                     const delta_sqrt = delta.sqrt();
-                    // x1 produces better results
-                    //const x0 = b.negate().add(delta_sqrt).divide(a.scale(2));
+                    const x0 = b.negate().add(delta_sqrt).divide(a.scale(2));
+                    if (shortest)
+                        xs.push(x0);
                     const x1 = b.negate().subtract(delta_sqrt).divide(a.scale(2));
-                    //xs.push(x0);
                     xs.push(x1);
                 } else {
                     const x = c.negate().divide(b);
@@ -136,7 +136,7 @@
                 if (x !== null)
                     xs.push(x);
             }
-            let last_score = 0;
+            let best_score = 0;
             let score;
             for (let i = 0; i < xs.length; i++) {
                 x = xs[i];
@@ -164,12 +164,12 @@
                     theta12 += 2 * Math.PI;
 
                 score = (theta02 - theta01) * r0 + (theta12 - theta11) * r1;
-                if (i == 0 || score < last_score) {
+                if (i == 0 || score < best_score) {
                     arc0 = { center: c0, radius: r0, startAngle: theta01, endAngle: theta02 };
                     arc1 = { center: c1, radius: r1, startAngle: theta11, endAngle: theta12 };
                     arcsMeetingPoint = x;
+                    best_score = score;
                 }
-                last_score = score;
             }
 
             // Before returning, check for NaN in your results
