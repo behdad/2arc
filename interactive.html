@@ -19,6 +19,8 @@
     <canvas id="myCanvas" width="800" height="800"></canvas>
     <br>
     <label for="shortest">Shortest:</label> <input type="checkbox" id="shortest" name="shortest" checked>
+    <label for="skewedness">Skewedness:</label><input type="range" id="skewedness" name="skewedness" min="-5" max="5" step="0.1" value="0.0">
+
 
     <script>
         class Complex {
@@ -90,7 +92,7 @@
             return p0.add(d0.multiply(new Complex(t, 0)));
         }
 
-        function lines2ArcConnection(l0, l1, shortest = true) {
+        function lines2ArcConnection(l0, l1, shortest = true, t = 1) {
             const rotate90 = new Complex(0, 1);
             let connection = normalize(l1[0].subtract(l0[1]));
             const d0 = normalize(l0[1].subtract(l0[0]));
@@ -110,7 +112,6 @@
                 const p0 = l0[1];
                 const p1 = l1[0];
 
-                const t = 1;
                 const a = d1.subtract(d0.multiply(new Complex(t, 0)));
                 const b = new Complex(-2, 0).multiply(d1.multiply(p0).subtract(d0.multiply(p1).multiply(new Complex(t, 0))));
                 const c = d1.multiply(p0).multiply(p0).subtract(d0.multiply(p1).multiply(p1).multiply(new Complex(t, 0)));
@@ -221,7 +222,8 @@
                 let l1 = [new Complex(line2.firstSegment.point.x, line2.firstSegment.point.y), new Complex(line2.lastSegment.point.x, line2.lastSegment.point.y)];
 
                 const shortest = document.getElementById("shortest").checked;
-                let solution = lines2ArcConnection(l0, l1, shortest);
+                const t = Math.exp(parseFloat(document.getElementById("skewedness").value));
+                let solution = lines2ArcConnection(l0, l1, shortest, t);
 
                 if (solution) {
 
@@ -285,6 +287,7 @@
             view.onMouseUp = onMouseUp;
 
             document.getElementById("shortest").onchange = updateArcs;
+            document.getElementById("skewedness").onchange = updateArcs;
         };
     </script>
 </body>

@@ -87,7 +87,7 @@
             return p0.add(d0.multiply(new Complex(t, 0)));
         }
 
-        function lines2ArcConnection(l0, l1, shortest = true) {
+        function lines2ArcConnection(l0, l1, shortest = true, t = 1) {
             const rotate90 = new Complex(0, 1);
             let connection = normalize(l1[0].subtract(l0[1]));
             const d0 = normalize(l0[1].subtract(l0[0]));
@@ -107,7 +107,6 @@
                 const p0 = l0[1];
                 const p1 = l1[0];
 
-                const t = 1;
                 const a = d1.subtract(d0.multiply(new Complex(t, 0)));
                 const b = new Complex(-2, 0).multiply(d1.multiply(p0).subtract(d0.multiply(p1).multiply(new Complex(t, 0))));
                 const c = d1.multiply(p0).multiply(p0).subtract(d0.multiply(p1).multiply(p1).multiply(new Complex(t, 0)));

@@ -21,7 +21,7 @@ def lines_intersection(p0, d0, p1, d1):
     return p0 + (t * d0)
 
 
-def lines_2arc_connection(l0, l1, shortest=True):
+def lines_2arc_connection(l0, l1, shortest=True, t=1.0):
     rotate90 = complex(0, 1)
     connection = normalize(l1[0] - l0[1])
     d0 = normalize(l0[1] - l0[0])
@@ -35,8 +35,6 @@ def lines_2arc_connection(l0, l1, shortest=True):
     if True:
         p0 = l0[1]
         p1 = l1[0]
-
-        t = 1
 
         # Solve for arcs_meeting_point
         # c0 = (arcs_meeting_point - l0[1]) ** 2 / d0
