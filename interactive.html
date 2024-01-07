@@ -150,7 +150,7 @@
                 if (theta12 < theta11)
                     theta12 += 2 * Math.PI;
 
-                score = theta02 - theta01 + theta12 - theta11;
+                score = (theta02 - theta01) * r0 + (theta12 - theta11) * r1;
                 if (i == 0 || score < last_score) {
                     arc0 = { center: c0, radius: r0, startAngle: theta01, endAngle: theta02 };
                     arc1 = { center: c1, radius: r1, startAngle: theta11, endAngle: theta12 };

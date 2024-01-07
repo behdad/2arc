@@ -101,7 +101,7 @@ def lines_2arc_connection(l0, l1):
         if theta12 < theta11:
             theta12 += 2 * math.pi
 
-        score = theta02 - theta01 + theta12 - theta11;
+        score = (theta02 - theta01) * r0 + (theta12 - theta11) * r1;
         if i == 0 or score < last_score:
             arc0 = (c0, r0, theta01, theta02)
             arc1 = (c1, r1, theta11, theta12)
